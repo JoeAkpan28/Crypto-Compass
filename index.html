@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Advisor Chatbot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            width: 400px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #risk-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .risk-btn {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            text-align: center;
+        }
+        .risk-btn.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        #submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #submit-btn:hover {
+            background-color: #218838;
+        }
+        #response-area {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <h2>Crypto Advisor 🤖</h2>
+    
+    <div class="input-group">
+        <label for="budget">Your Budget ($)</label>
+        <input type="number" id="budget" placeholder="e.g., 1000" value="1000">
+    </div>
+
+    <div class="input-group">
+        <label>Your Risk Profile</label>
+        <div id="risk-buttons">
+            <div class="risk-btn" data-risk="conservative">Conservative</div>
+            <div class="risk-btn selected" data-risk="balanced">Balanced</div>
+            <div class="risk-btn" data-risk="aggressive">Aggressive</div>
+        </div>
+    </div>
+
+    <button id="submit-btn">Get Advice</button>
+    
+    <div id="response-area">
+        <p>Your personalized advice will appear here.</p>
+    </div>
+</div>
+
+<script>
+    const budgetInput = document.getElementById('budget');
+    const riskButtons = document.querySelectorAll('.risk-btn');
+    const submitButton = document.getElementById('submit-btn');
+    const responseArea = document.getElementById('response-area');
+    let selectedRisk = 'balanced'; // Default value
+
+    // Handle risk button selection
+    riskButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            riskButtons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            selectedRisk = button.getAttribute('data-risk');
+        });
+    });
+
+    // Handle the "Get Advice" button click
+    submitButton.addEventListener('click', async () => {
+        const budget = parseFloat(budgetInput.value);
+
+        if (isNaN(budget) || budget <= 0) {
+            responseArea.innerHTML = `<p style="color: red;">Please enter a valid budget.</p>`;
+            return;
+        }
+
+        // Show a loading message
+        responseArea.innerHTML = `<p>Analyzing your profile...</p>`;
+
+        try {
+            // Use the fetch API to call our Flask backend
+            const response = await fetch('http://127.0.0.1:5000/get-advice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    budget: budget,
+                    risk_profile: selectedRisk
+                }),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            
+            // Build the HTML to display the results
+            let resultHTML = `<h4>Your ${data.profile} Portfolio:</h4>`;
+            resultHTML += `<ul>`;
+            data.recommendations.forEach(rec => {
+                resultHTML += `<li><b>${rec.token}:</b> ${rec.percentage * 100}% ($${rec.amount.toFixed(2)})</li>`;
+            });
+            resultHTML += `</ul>`;
+            resultHTML += `<p><b>Summary:</b> ${data.summary}</p>`;
+            
+            responseArea.innerHTML = resultHTML;
+
+        } catch (error) {
+            console.error('Error:', error);
+            responseArea.innerHTML = `<p style="color: red;">Failed to get advice. Is the Python server running?</p>`;
+        }
+    });
+</script>
+
+</body>
+</html>
