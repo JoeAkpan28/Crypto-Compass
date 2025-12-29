@@ -10,8 +10,6 @@
 
 https://github.com/JoeAkpan28/Crypto-Compass/assets/12345678/a1b2c3d4-e5f6-7890-1234-567890abcdef
 
-*(Note: You will need to replace the link above by creating a GIF of your app and uploading it to the README)*
-
 <br>
 
 ## 📌 About The Project
