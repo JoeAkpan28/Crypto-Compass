@@ -8,10 +8,6 @@
 
 <br>
 
-https://github.com/JoeAkpan28/Crypto-Compass/assets/12345678/a1b2c3d4-e5f6-7890-1234-567890abcdef
-
-<br>
-
 ## 📌 About The Project
 
 Most people enter the crypto market without a clear strategy, leading to emotional decisions and financial loss. **Crypto Compass** cuts through the noise by providing a simple, AI-powered advisor. It builds a personalized crypto portfolio in seconds, turning your risk tolerance into a clear, actionable investment plan.
